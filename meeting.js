@@ -21,6 +21,14 @@ const LANG_NAMES = {
   ur: 'اردو', ne: 'नेपाली'
 };
 
+let myInputLanguage = 'en';
+
+const RECOGNITION_LOCALES = {
+  en: 'en-IN', hi: 'hi-IN', bn: 'bn-IN', te: 'te-IN', mr: 'mr-IN',
+  ta: 'ta-IN', gu: 'gu-IN', kn: 'kn-IN', ml: 'ml-IN', pa: 'pa-IN',
+  or: 'or-IN', as: 'as-IN', ur: 'ur-PK', ne: 'ne-NP'
+};
+
 /* ─── PREVIEW (pre-join) ──────────────────────────────────────────────────── */
 let previewMicOn = true, previewCamOn = true;
 
@@ -63,6 +71,8 @@ function togglePreviewCam() {
 async function joinMeeting() {
   myName = document.getElementById('user-name').value.trim() || 'Anonymous';
   myLanguage = document.getElementById('user-language').value;
+  const inputLangEl = document.getElementById('user-input-language');
+  if (inputLangEl) myInputLanguage = inputLangEl.value;
 
   if (!localStream) {
     try {
@@ -398,7 +408,7 @@ function startBhasha() {
   recognition = new SpeechRecognition();
   recognition.continuous = true;
   recognition.interimResults = true;
-  recognition.lang = 'en-IN'; // English with Indian accent
+  recognition.lang = RECOGNITION_LOCALES[myInputLanguage] || (myInputLanguage + '-IN');
 
   recognition.onresult = (event) => {
     let final = '';
@@ -411,7 +421,7 @@ function startBhasha() {
       socket.emit('transcript', {
         room_id: ROOM_ID,
         text: textToSend,
-        detected_lang: 'en'
+        detected_lang: myInputLanguage
       });
     }
   };
@@ -431,7 +441,7 @@ function startBhasha() {
   recognition.start();
   bhashaActive = true;
   updateBhashaUI();
-  showToast('🌐 Bhasha Bridge active — speak in English!');
+  showToast('🌐 Bhasha Bridge active');
 }
 
 function stopBhasha() {

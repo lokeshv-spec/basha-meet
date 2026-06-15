@@ -51,13 +51,13 @@
           </button>
         </div>
         <div class="action-divider">or</div>
-        <div class="action-card secondary">
+        <div id="join-section" class="action-card secondary">
           <div class="action-card-icon">🔗</div>
           <h3>Join Meeting</h3>
           <p>Enter a code or paste a link</p>
           <div class="join-form">
             <input type="text" id="join-code" placeholder="Enter meeting code (e.g. ABC12345)" maxlength="20">
-            <button class="btn btn-secondary" onclick="joinMeeting()">Join</button>
+            <button type="button" class="btn btn-secondary" onclick="joinMeeting()">Join</button>
           </div>
         </div>
       </div>
@@ -162,7 +162,9 @@
         const link = window.location.origin + data.link;
         document.getElementById('meeting-link').value = link;
         document.getElementById('create-loading').style.display = 'none';
-        document.getElementById('meeting-created').style.display = 'flex';
+        const createdBox = document.getElementById('meeting-created');
+        createdBox.style.display = 'flex';
+        createdBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } catch (e) {
         alert('Failed to create meeting. Make sure the server is running.');
         document.getElementById('create-loading').style.display = 'none';
@@ -170,8 +172,14 @@
     }
 
     function joinMeeting() {
-      const code = document.getElementById('join-code').value.trim();
-      if (!code) { alert('Please enter a meeting code or link.'); return; }
+      const codeInput = document.getElementById('join-code');
+      const code = codeInput.value.trim();
+      if (!code) {
+        window.location.hash = '#join-section';
+        document.getElementById('join-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => codeInput.focus(), 300);
+        return;
+      }
       // Handle full URLs and plain codes (case-insensitive)
       let roomId = code;
       if (code.includes('/meeting/')) {

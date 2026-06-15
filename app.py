@@ -228,7 +228,8 @@ def on_transcript(data):
 
     speaker_name = participants.get(sid, {}).get('name', 'Speaker')
     original_text = data.get('text', '')
-    source_lang = data.get('detected_lang', 'en')
+    # Allow client to provide detected language; default to 'auto' so translators detect source
+    source_lang = data.get('detected_lang', 'auto')
 
     print(f"on_transcript: room={room_id} sid={sid} name={speaker_name} source={source_lang} text={original_text[:200]}")
     emit('transcript-original', {
