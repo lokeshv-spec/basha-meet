@@ -1,0 +1,5 @@
+flask>=3.0.0
+flask-socketio>=5.3.6
+flask-cors>=4.0.0
+deep-translator>=1.11.4
+eventlet>=0.35.2

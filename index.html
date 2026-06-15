@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BhashaMeet — भाषा Bridge Video Conferencing</title>
+  <link rel="stylesheet" href="/index.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+  <!-- Nav -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="brand-icon">🌐</div>
+      <span class="brand-name">BhashaMeet</span>
+      <span class="brand-tag">भाषा Bridge</span>
+    </div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#languages">Languages</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">Built for Bharat</div>
+      <h1 class="hero-title">
+        Meet in your<br>
+        <span class="gradient-text">mother tongue</span>
+      </h1>
+      <p class="hero-subtitle">
+        Google Meet–quality video calls with live AI translation across<br>
+        <strong>15+ Indian languages</strong>. Speak in English — everyone hears in their language.
+      </p>
+
+      <!-- Action cards -->
+      <div class="action-cards">
+        <div class="action-card primary">
+          <div class="action-card-icon">🎥</div>
+          <h3>New Meeting</h3>
+          <p>Create a room and invite anyone</p>
+          <button class="btn btn-primary" onclick="createMeeting()">
+            <span class="btn-icon">+</span> Start Meeting
+          </button>
+        </div>
+        <div class="action-divider">or</div>
+        <div class="action-card secondary">
+          <div class="action-card-icon">🔗</div>
+          <h3>Join Meeting</h3>
+          <p>Enter a code or paste a link</p>
+          <div class="join-form">
+            <input type="text" id="join-code" placeholder="Enter meeting code (e.g. ABC12345)" maxlength="20">
+            <button class="btn btn-secondary" onclick="joinMeeting()">Join</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading overlay for create -->
+      <div id="create-loading" class="loading-overlay" style="display:none;">
+        <div class="spinner"></div>
+        <p>Creating your meeting…</p>
+      </div>
+
+      <!-- Created link display -->
+      <div id="meeting-created" class="meeting-created-box" style="display:none;">
+        <div class="created-header">✅ Meeting Created!</div>
+        <div class="created-link-row">
+          <input type="text" id="meeting-link" readonly>
+          <button class="btn-copy" onclick="copyLink()">📋 Copy</button>
+        </div>
+        <button class="btn btn-primary btn-join-now" onclick="joinCreated()">Join Now →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="section-label">WHAT YOU GET</div>
+    <h2 class="section-title">Everything in Google Meet,<br>plus <span class="gradient-text">Bhasha Bridge</span></h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📹</div>
+        <h3>HD Video & Audio</h3>
+        <p>Crystal clear peer-to-peer video with WebRTC technology — no servers involved, no latency.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <h3>Instant Meeting Links</h3>
+        <p>Create a room in one click. Share the link — anyone joins from browser, no install needed.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <h3>In-Meeting Chat</h3>
+        <p>Real-time chat visible to everyone in the room, with timestamps.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🖥️</div>
+        <h3>Screen Sharing</h3>
+        <p>Share your entire screen, a window, or a browser tab with one click.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✋</div>
+        <h3>Raise Hand</h3>
+        <p>Signal to the host that you want to speak, just like in real meetings.</p>
+      </div>
+      <div class="feature-card highlight-card">
+        <div class="feature-icon">🌐</div>
+        <h3>Bhasha Bridge ✨</h3>
+        <p>Speak in English — our AI translates live captions into each participant's chosen Indian language in real-time.</p>
+        <div class="feature-badge">Exclusive Feature</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Languages -->
+  <section class="languages-section" id="languages">
+    <div class="section-label">BHASHA BRIDGE SUPPORTS</div>
+    <h2 class="section-title">15+ Indian Languages</h2>
+    <div class="lang-grid">
+      <div class="lang-chip">🇮🇳 Hindi (हिन्दी)</div>
+      <div class="lang-chip">Bengali (বাংলা)</div>
+      <div class="lang-chip">Telugu (తెలుగు)</div>
+      <div class="lang-chip">Marathi (मराठी)</div>
+      <div class="lang-chip">Tamil (தமிழ்)</div>
+      <div class="lang-chip">Gujarati (ગુજરાતી)</div>
+      <div class="lang-chip">Kannada (ಕನ್ನಡ)</div>
+      <div class="lang-chip">Malayalam (മലയാളം)</div>
+      <div class="lang-chip">Punjabi (ਪੰਜਾਬੀ)</div>
+      <div class="lang-chip">Odia (ଓଡ଼ିଆ)</div>
+      <div class="lang-chip">Assamese (অসমীয়া)</div>
+      <div class="lang-chip">Urdu (اردو)</div>
+      <div class="lang-chip">Nepali (नेपाली)</div>
+      <div class="lang-chip">English</div>
+      <div class="lang-chip">+ more coming</div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-brand"> BhashaMeet</div>
+    <p>Completely free. No accounts. No limits. Built for India.</p>
+    <p class="footer-tech">Powered by WebRTC · Flask · Socket.IO · Google Translate API</p>
+  </footer>
+
+  <script>
+    let createdRoomId = null;
+
+    async function createMeeting() {
+      document.getElementById('create-loading').style.display = 'flex';
+      document.getElementById('meeting-created').style.display = 'none';
+      try {
+        const res = await fetch('/api/create-meeting', { method: 'POST' });
+        const data = await res.json();
+        createdRoomId = data.room_id;
+        const link = window.location.origin + data.link;
+        document.getElementById('meeting-link').value = link;
+        document.getElementById('create-loading').style.display = 'none';
+        document.getElementById('meeting-created').style.display = 'flex';
+      } catch (e) {
+        alert('Failed to create meeting. Make sure the server is running.');
+        document.getElementById('create-loading').style.display = 'none';
+      }
+    }
+
+    function joinMeeting() {
+      const code = document.getElementById('join-code').value.trim();
+      if (!code) { alert('Please enter a meeting code or link.'); return; }
+      // Handle full URLs and plain codes (case-insensitive)
+      let roomId = code;
+      if (code.includes('/meeting/')) {
+        roomId = code.split('/meeting/')[1].split('/')[0];
+      }
+      roomId = roomId.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+      if (!roomId) { alert('Please enter a valid meeting code or link.'); return; }
+      window.location.href = `/meeting/${roomId}`;
+    }
+
+    function joinCreated() {
+      if (createdRoomId) window.location.href = `/meeting/${createdRoomId}`;
+    }
+
+    function copyLink() {
+      const input = document.getElementById('meeting-link');
+      input.select();
+      navigator.clipboard.writeText(input.value).then(() => {
+        const btn = document.querySelector('.btn-copy');
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => btn.textContent = '📋 Copy', 2000);
+      });
+    }
+
+    document.getElementById('join-code').addEventListener('keydown', e => {
+      if (e.key === 'Enter') joinMeeting();
+    });
+  </script>
+</body>
+</html>

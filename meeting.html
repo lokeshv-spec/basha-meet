@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BhashaMeet — Meeting {{ room_id }}</title>
+  <link rel="stylesheet" href="/meeting.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Join modal -->
+  <div id="join-modal" class="modal-overlay active">
+    <div class="modal-box">
+      <div class="modal-logo">🌐 BhashaMeet</div>
+      <h2>Join Meeting</h2>
+      <p class="modal-room-id">Room: <strong>{{ room_id }}</strong></p>
+
+      <div class="form-group">
+        <label>Your Name</label>
+        <input type="text" id="user-name" placeholder="Enter your name" maxlength="40" autofocus>
+      </div>
+
+      <div class="form-group">
+        <label>🌐 Bhasha Bridge Language</label>
+        <p class="form-hint">Live captions will be translated into this language for you</p>
+        <select id="user-language">
+          <option value="en">English</option>
+          <option value="hi">Hindi (हिन्दी)</option>
+          <option value="bn">Bengali (বাংলা)</option>
+          <option value="te">Telugu (తెలుగు)</option>
+          <option value="mr">Marathi (मराठी)</option>
+          <option value="ta">Tamil (தமிழ்)</option>
+          <option value="gu">Gujarati (ગુજરાતી)</option>
+          <option value="kn">Kannada (ಕನ್ನಡ)</option>
+          <option value="ml">Malayalam (മലയാളം)</option>
+          <option value="pa">Punjabi (ਪੰਜਾਬੀ)</option>
+          <option value="or">Odia (ଓଡ଼ିଆ)</option>
+          <option value="as">Assamese (অসমীয়া)</option>
+          <option value="ur">Urdu (اردو)</option>
+          <option value="ne">Nepali (नेपाली)</option>
+        </select>
+      </div>
+
+      <div class="preview-row">
+        <div class="preview-cam" id="preview-cam">
+          <video id="preview-video" autoplay muted playsinline></video>
+          <div class="preview-off-msg" id="preview-off-msg" style="display:none;">📷 Camera Off</div>
+        </div>
+        <div class="preview-controls">
+          <button class="preview-btn active" id="preview-mic-btn" onclick="togglePreviewMic()">🎤 Mic On</button>
+          <button class="preview-btn active" id="preview-cam-btn" onclick="togglePreviewCam()">📷 Cam On</button>
+        </div>
+      </div>
+
+      <button class="btn-join-meeting" onclick="joinMeeting()">Join Meeting →</button>
+    </div>
+  </div>
+
+  <!-- Main Meeting UI -->
+  <div id="meeting-ui" style="display:none;">
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-logo">🌐</span>
+        <span class="topbar-room">{{ room_id }}</span>
+        <span class="topbar-time" id="meeting-timer">00:00</span>
+      </div>
+      <div class="topbar-center">
+        <div class="participant-count" id="participant-count">👥 1</div>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn" onclick="copyMeetingLink()" title="Copy Link">🔗</button>
+        <button class="topbar-btn lang-switcher" onclick="toggleLangPanel()" title="Change Language">
+          🌐 <span id="current-lang-label">EN</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Language change panel -->
+    <div id="lang-panel" class="lang-panel" style="display:none;">
+      <div class="lang-panel-header">🌐 Bhasha Bridge — Change Your Language</div>
+      <select id="live-lang-select" onchange="updateLanguage()">
+        <option value="en">English</option>
+        <option value="hi">Hindi (हिन्दी)</option>
+        <option value="bn">Bengali (বাংলা)</option>
+        <option value="te">Telugu (తెలుగు)</option>
+        <option value="mr">Marathi (मराठी)</option>
+        <option value="ta">Tamil (தமிழ்)</option>
+        <option value="gu">Gujarati (ગુજరાતી)</option>
+        <option value="kn">Kannada (ಕನ್ನಡ)</option>
+        <option value="ml">Malayalam (മലയാളം)</option>
+        <option value="pa">Punjabi (ਪੰਜਾਬੀ)</option>
+        <option value="or">Odia (ଓଡ଼ିଆ)</option>
+        <option value="as">Assamese (অসমীয়া)</option>
+        <option value="ur">Urdu (اردو)</option>
+        <option value="ne">Nepali (नेपाली)</option>
+      </select>
+      <button class="close-lang-panel" onclick="toggleLangPanel()">✕ Close</button>
+    </div>
+
+    <!-- Video Grid -->
+    <div class="video-area" id="video-area">
+      <div class="video-grid" id="video-grid">
+        <!-- Local video tile -->
+        <div class="video-tile local-tile" id="local-tile">
+          <video id="local-video" autoplay muted playsinline></video>
+          <div class="tile-label" id="local-label">You</div>
+          <div class="tile-off-overlay" id="local-cam-off" style="display:none;">
+            <div class="avatar-circle" id="local-avatar">Y</div>
+          </div>
+          <div class="tile-badges">
+            <div class="badge-mic-off" id="local-mic-badge" style="display:none;">🔇</div>
+            <div class="badge-hand" id="local-hand-badge" style="display:none;">✋</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Captions / Bhasha Bridge panel -->
+      <div class="captions-panel" id="captions-panel">
+        <div class="captions-header">
+          <span>🌐 Bhasha Bridge — Live Captions</span>
+          <div class="caption-controls">
+            <button class="caption-toggle-btn" id="bhasha-toggle-btn" onclick="toggleBhashaBridge()">
+              ● LIVE
+            </button>
+            <button class="caption-clear-btn" onclick="clearCaptions()">🗑</button>
+            <button class="caption-close-btn" onclick="toggleCaptionsPanel()">✕</button>
+          </div>
+        </div>
+        <div class="captions-body" id="captions-body">
+          <div class="captions-empty">Bhasha Bridge will show live translated captions here.<br>Click <strong>● LIVE</strong> to start transcription.</div>
+        </div>
+        <div class="caption-status" id="caption-status">
+          <span id="caption-status-text">● Bhasha Bridge Ready</span>
+          <span id="caption-lang-display"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls Bar -->
+    <div class="controls-bar">
+      <div class="controls-left">
+        <div class="control-item">
+          <button class="ctrl-btn" id="mic-btn" onclick="toggleMic()" title="Toggle Mic">🎤</button>
+          <span class="ctrl-label">Mic</span>
+        </div>
+        <div class="control-item">
+          <button class="ctrl-btn" id="cam-btn" onclick="toggleCam()" title="Toggle Camera">📷</button>
+          <span class="ctrl-label">Camera</span>
+        </div>
+        <div class="control-item">
+          <button class="ctrl-btn" id="screen-btn" onclick="toggleScreen()" title="Share Screen">🖥️</button>
+          <span class="ctrl-label">Share</span>
+        </div>
+      </div>
+
+      <div class="controls-center">
+        <button class="ctrl-btn ctrl-hand" id="hand-btn" onclick="toggleHand()" title="Raise Hand">✋</button>
+        <button class="ctrl-btn ctrl-bhasha active" id="caption-btn" onclick="toggleCaptionsPanel()" title="Bhasha Bridge">🌐</button>
+        <button class="ctrl-btn ctrl-chat" id="chat-btn" onclick="toggleChat()" title="Chat">💬
+          <span class="chat-badge" id="chat-badge" style="display:none;">0</span>
+        </button>
+        <button class="ctrl-btn ctrl-people" onclick="toggleParticipants()" title="Participants">👥</button>
+      </div>
+
+      <div class="controls-right">
+        <button class="ctrl-btn ctrl-end" onclick="endCall()" title="Leave Meeting">📵</button>
+      </div>
+    </div>
+
+    <!-- Right Side Panel: Chat / Participants -->
+    <div class="side-panel" id="side-panel" style="display:none;">
+      <!-- Tab headers -->
+      <div class="panel-tabs">
+        <button class="panel-tab active" id="tab-chat" onclick="showTab('chat')">💬 Chat</button>
+        <button class="panel-tab" id="tab-people" onclick="showTab('people')">👥 People</button>
+        <button class="panel-tab close-tab" onclick="closeSidePanel()">✕</button>
+      </div>
+
+      <!-- Chat tab -->
+      <div class="tab-content active" id="content-chat">
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="Send a message…" maxlength="500" onkeydown="chatKeydown(event)">
+          <button class="send-btn" onclick="sendChat()">▶</button>
+        </div>
+      </div>
+
+      <!-- Participants tab -->
+      <div class="tab-content" id="content-people">
+        <div class="people-list" id="people-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notifications -->
+  <div id="toast-container"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const ROOM_ID = "{{ room_id }}";
+  </script>
+  <script src="/meeting.js"></script>
+</body>
+</html>
