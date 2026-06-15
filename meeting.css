@@ -50,7 +50,21 @@ body {
 }
 @keyframes modalIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 
-.modal-logo { font-size: 22px; font-weight: 700; margin-bottom: 6px; color: var(--accent); }
+.modal-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--accent);
+}
+.modal-logo img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  border-radius: 10px;
+}
 .modal-box h2 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
 .modal-room-id { font-size: 13px; color: var(--text2); margin-bottom: 28px; }
 .modal-room-id strong { color: var(--accent); font-family: monospace; letter-spacing: 1px; }
@@ -137,7 +151,19 @@ body {
   z-index: 50;
 }
 .topbar-left { display: flex; align-items: center; gap: 14px; }
-.topbar-logo { font-size: 20px; }
+.topbar-logo {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+}
+.topbar-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
 .topbar-room { font-family: monospace; font-size: 15px; font-weight: 600; color: var(--accent); letter-spacing: 1px; }
 .topbar-time { font-size: 13px; color: var(--text3); font-variant-numeric: tabular-nums; }
 .topbar-center { display: flex; align-items: center; }

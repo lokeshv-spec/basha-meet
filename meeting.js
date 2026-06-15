@@ -259,6 +259,7 @@ socket.on('chat-message', (data) => {
 });
 
 socket.on('transcript-translated', (data) => {
+  console.log('Received transcript-translated:', data);
   appendCaption(data.name, data.original, data.translated, data.target_lang);
 });
 
@@ -405,9 +406,11 @@ function startBhasha() {
       if (event.results[i].isFinal) final += event.results[i][0].transcript;
     }
     if (final.trim()) {
+      const textToSend = final.trim();
+      console.log('Speech recognition final:', textToSend);
       socket.emit('transcript', {
         room_id: ROOM_ID,
-        text: final.trim(),
+        text: textToSend,
         detected_lang: 'en'
       });
     }

@@ -8,22 +8,46 @@ from flask_cors import CORS
 
 # Translation setup — try multiple backends
 def translate(text, target_lang, source_lang='auto'):
-    if target_lang == source_lang or target_lang == 'en':
+    # Only skip translation when target equals source
+    if target_lang == source_lang:
         return text
+
+    # Helpful debug output (avoid crashing on console encoding issues)
+    try:
+        print(f"translate() -> target={target_lang} source={source_lang} text={text[:120]}")
+    except Exception:
+        print("translate() -> logging text (repr):", repr(text)[:120])
+
+    # Try deep_translator first
     try:
         from deep_translator import GoogleTranslator
-        t = GoogleTranslator(source=source_lang, target=target_lang)
-        return t.translate(text) or text
-    except Exception:
-        pass
+        src = source_lang if source_lang != 'auto' else 'auto'
+        t = GoogleTranslator(source=src, target=target_lang)
+        translated = t.translate(text)
+        if translated:
+            return translated
+    except Exception as e:
+        try:
+            print('deep_translator failed:', type(e).__name__, str(e)[:200])
+        except Exception:
+            print('deep_translator failed (exception while printing)')
+
+    # Fallback to googletrans
     try:
-        from googletrans import Translator
+        from googletrans import Translator  # type: ignore
         t = Translator()
-        result = t.translate(text, dest=target_lang, src=source_lang if source_lang != 'auto' else 'en')
-        return result.text or text
-    except Exception:
-        pass
-    return text  # graceful fallback: return original
+        src = source_lang if source_lang != 'auto' else 'auto'
+        result = t.translate(text, dest=target_lang, src=src)
+        if hasattr(result, 'text') and result.text:
+            return result.text
+    except Exception as e:
+        try:
+            print('googletrans failed:', type(e).__name__, str(e)[:200])
+        except Exception:
+            print('googletrans failed (exception while printing)')
+
+    # Graceful fallback: return original text if no translator succeeded
+    return text
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, template_folder=ROOT_DIR, static_folder=ROOT_DIR, static_url_path='')
@@ -206,6 +230,7 @@ def on_transcript(data):
     original_text = data.get('text', '')
     source_lang = data.get('detected_lang', 'en')
 
+    print(f"on_transcript: room={room_id} sid={sid} name={speaker_name} source={source_lang} text={original_text[:200]}")
     emit('transcript-original', {
         'sid': sid, 'name': speaker_name,
         'text': original_text, 'source_lang': source_lang,
@@ -213,30 +238,39 @@ def on_transcript(data):
     }, room=room_id)
 
     room_participants = meetings[room_id]['participants']
-    target_langs = set()
-    for p_sid, p_info in room_participants.items():
-        if p_sid != sid:
-            target_langs.add(p_info.get('language', 'en'))
+    target_langs = {p_info.get('language', 'en') for p_info in room_participants.values()}
 
     translations = {}
     for lang in target_langs:
         if lang == source_lang:
             translations[lang] = original_text
         else:
-            translations[lang] = translate(original_text, lang, source_lang)
+            try:
+                translations[lang] = translate(original_text, lang, source_lang)
+            except Exception as e:
+                print('translate() exception for', lang, type(e).__name__, str(e)[:200])
+                translations[lang] = original_text
+
+    try:
+        print('Computed translations:', translations)
+    except Exception:
+        pass
 
     for p_sid, p_info in room_participants.items():
-        if p_sid != sid:
-            p_lang = p_info.get('language', 'en')
-            translated = translations.get(p_lang, original_text)
-            emit('transcript-translated', {
-                'sid': sid, 'name': speaker_name,
-                'original': original_text,
-                'translated': translated,
-                'source_lang': source_lang,
-                'target_lang': p_lang,
-                'timestamp': time.time()
-            }, room=p_sid)
+        p_lang = p_info.get('language', 'en')
+        translated = translations.get(p_lang, original_text)
+        try:
+            print(f"Emitting to {p_sid} (lang={p_lang}): {translated[:120]}")
+        except Exception:
+            pass
+        emit('transcript-translated', {
+            'sid': sid, 'name': speaker_name,
+            'original': original_text,
+            'translated': translated,
+            'source_lang': source_lang,
+            'target_lang': p_lang,
+            'timestamp': time.time()
+        }, room=p_sid)
 
 @socketio.on('update-language')
 def on_update_language(data):
